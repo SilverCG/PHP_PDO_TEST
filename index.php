@@ -5,15 +5,20 @@ error_reporting(E_ALL);
 
 $filePath = 'leads.csv';
 
-function insertCSV($filePath) { #, PDO $con) {
+function insertCSV($filePath, PDO $con) {
     $csv = file($filePath);
-    $data = [];
+    $leads = [];
 
     foreach ($csv as $line) {
-    	$data[] = str_getcsv($line);
+    	$leads[] = str_getcsv($line);
+    }
+    foreach ($leads as $lead) {
+    	$statement = $con->prepare("INSERT INTO Lead(age, name) VALUES(?,?)");
+	$statement->execute($lead);
     }
     print_r($data);
 }
-insertCSV($filePath); #, $con);
+insertCSV($filePath, $con);
+
 ?>
 
