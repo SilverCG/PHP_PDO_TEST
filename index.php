@@ -1,7 +1,20 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+try {
+    $con = new PDO("sqlite::memory:");
+} catch(PDOException $e) {
+    echo $e->getMessage();
+}
+
+$con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$con->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+
+$setup_table_query = "CREATE TABLE IF NOT EXSITS Lead (
+	LeadID INTEGER PRIMARY KEY AUTOINCREMENT,
+	LeadName VARCHAR(90)
+	)";
+
+$con->exec($setup_table_query);
 
 $filePath = 'leads.csv';
 
@@ -13,12 +26,11 @@ function insertCSV($filePath, PDO $con) {
     	$leads[] = str_getcsv($line);
     }
     foreach ($leads as $lead) {
-    	$statement = $con->prepare("INSERT INTO Lead(age, name) VALUES(?,?)");
-	$statement->execute($lead);
+    	$statement = $con->prepare("INSERT INTO Lead(LeadName) VALUES(?)");
+	$statement->execute([$lead[1]]);
     }
-    print_r($data);
+    print_r($leads);
 }
 insertCSV($filePath, $con);
-
 ?>
 
